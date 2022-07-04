@@ -7,25 +7,27 @@ const Note = require('./models/Note')
 
 const app = express()
 const logger = require('./loggerMiddleware')
+const notFound = require('./middleware/notFound')
+const handleErrors = require('./middleware/handleErrors')
 
 app.use(cors())
 app.use(express.json())
 
 app.use(logger)
 
-let notes = []
-
 app.get('/', (request, response) => {
-  response.send('<h1>Hello World!</h1>')
+  response.send('<h1>This is the Motes API 🚀 </h1>')
 })
 
+// obtenemos todas las notas
 app.get('/api/notes', (request, response) => {
   Note.find({}).then(notes => {
     response.json(notes)
   })
 })
 
-app.get('/api/notes/:id', (request, response) => {
+// obtener una nota por id
+app.get('/api/notes/:id', (request, response, next) => {
   const { id } = request.params
 
   Note.findById(id)
@@ -36,19 +38,39 @@ app.get('/api/notes/:id', (request, response) => {
         response.status(404).end()
       }
     })
-    .catch(error => {
-      console.log(error)
-      response.status(500).end()
+    .catch(error => next(error))
+})
+
+// actualizar una nota
+app.put('/api/notes/:id', (request, response, next) => {
+  const { id } = request.params
+  const note = request.body
+
+  const newNowInfo = {
+    content: note.content,
+    important: note.important
+  }
+
+  Note.findByIdAndUpdate(id, newNowInfo)
+    .then(result => {
+      response.json(result)
     })
+    .catch(error => next(error))
 })
 
-app.delete('/api/notes/:id', (request, response) => {
-  const id = Number(request.params.id)
-  notes = notes.filter(note => note.id !== id)
-  response.status(204).end()
+// eliminar una nota
+app.delete('/api/notes/:id', (request, response, next) => {
+  const { id } = request.params
+  console.log(id)
+  Note.findByIdAndDelete(id)
+    .then(() => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
-app.post('/api/notes', (request, response) => {
+// crear una nota
+app.post('/api/notes', (request, response, next) => {
   const note = request.body
 
   if (!note || !note.content) {
@@ -61,16 +83,16 @@ app.post('/api/notes', (request, response) => {
     important: note.important || false
   })
 
-  newNote.save().then(savedNote => {
-    response.json(savedNote)
-  })
-
-  response.status(201).json(newNote)
+  newNote
+    .save()
+    .then(savedNote => {
+      response.json(savedNote)
+    })
+    .catch(error => next(error))
 })
 
-app.use((request, response) => {
-  response.status(404).json({ error: 'Not found' })
-})
+app.use(notFound)
+app.use(handleErrors)
 
 const PORT = process.env.PORT
 

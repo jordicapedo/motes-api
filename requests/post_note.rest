@@ -1,7 +1,7 @@
-POST http://localhost:3001/api/notes
+POST http://localhost:3001/api/notes 
 content-type: application/json
 
 {
-  "content": "Mongoose is awesome",
-  "important": false
+  "content": "JavaScript can be used to create a new object",
+  "important": true
 }
