@@ -1,7 +1,7 @@
-PUT http://localhost:3001/api/notes/62c29b7c252898781eb30b99
+PUT http://localhost:3001/api/notes/62c2b2a2ecd0944fb05a1174
 content-type: application/json
 
 {
-  "content": "Nueva nota 2 editada",
+  "content": "MongoDB is awesome",
   "important": false
 }
