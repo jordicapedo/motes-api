@@ -11,27 +11,6 @@ mongoose
     console.log('Error connecting to database: ' + err)
   })
 
-/*
-Note.find({}).then(notes => {
-  console.log(notes)
-  mongoose.connection.close()
+process.on('uncaughtException', () => {
+  mongoose.connection.disconnect()
 })
-*/
-
-/*
-const note = new Note({
-  content: 'MongoDB is fun',
-  date: new Date(),
-  important: true
-})
-
-note
-  .save()
-  .then(result => {
-    console.log(result)
-    mongoose.connection.close()
-  })
-  .catch(error => {
-    console.log(error)
-  })
-  */
