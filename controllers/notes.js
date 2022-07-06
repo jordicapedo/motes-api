@@ -1,5 +1,6 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/Note')
+const User = require('../models/User')
 
 // obtenemos todas las notas
 notesRouter.get('/', async (request, response) => {
@@ -17,6 +18,42 @@ notesRouter.get('/:id', async (request, response, next) => {
       response.status(404).end()
     })
     .catch(next)
+})
+
+// crear una nota
+notesRouter.post('/', async (request, response, next) => {
+  const { content, important = false, userId } = request.body
+
+  const user = await User.findById(userId)
+
+  if (!content) {
+    return response.status(400).json({ error: 'content missing' })
+  }
+
+  const newNote = new Note({
+    content,
+    date: new Date(),
+    important,
+    user: user._id
+  })
+  /*
+  newNote
+    .save()
+    .then(savedNote => {
+      response.json(savedNote)
+    })
+    .catch(error => next(error))
+    */
+  try {
+    const savedNote = await newNote.save()
+
+    user.notes = user.notes.concat(savedNote._id)
+    await user.save()
+
+    response.json(savedNote)
+  } catch (error) {
+    next(error)
+  }
 })
 
 // actualizar una nota
@@ -42,28 +79,6 @@ notesRouter.delete('/:id', async (request, response, next) => {
   Note.findByIdAndDelete(id)
     .then(() => {
       response.status(204).end()
-    })
-    .catch(error => next(error))
-})
-
-// crear una nota
-notesRouter.post('/', async (request, response, next) => {
-  const note = request.body
-
-  if (!note || !note.content) {
-    return response.status(400).json({ error: 'content missing' })
-  }
-
-  const newNote = new Note({
-    content: note.content,
-    date: new Date(),
-    important: note.important
-  })
-
-  newNote
-    .save()
-    .then(savedNote => {
-      response.json(savedNote)
     })
     .catch(error => next(error))
 })
