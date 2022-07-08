@@ -1,7 +1,8 @@
 POST http://localhost:3001/api/notes 
-content-type: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYzdlNzFhMDk2MjZkYzgyNTU5NWRmNSIsInVzZXJuYW1lIjoiam9yZGljYXBlZG8iLCJpYXQiOjE2NTcyODA5MjR9.83FxUk5g8HSa365xwy5Q2idC6V4-kSZ44AgzuUZ6nPY
 
 {
-  "content": "JavaScript can be used to create a new object",
+  "content": "nueva nota con este token",
   "important": true
 }
