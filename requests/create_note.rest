@@ -2,9 +2,9 @@ POST http://localhost:3001/api/notes
 content-type: application/json
 
 {
-  "content": "nueva nota",
+  "content": "Hola mundo",
   "important": true,
-  "userId": "62c56564a8694cf766c51d72"
+  "userId": "62c7e71a09626dc825595df5"
 }
 
 ###
