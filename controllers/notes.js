@@ -1,7 +1,7 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/Note')
 const User = require('../models/User')
-const jwt = require('jsonwebtoken')
+const userExtractor = require('../middleware/userExtractor')
 
 // obtenemos todas las notas
 notesRouter.get('/', async (request, response) => {
@@ -24,28 +24,11 @@ notesRouter.get('/:id', async (request, response, next) => {
 })
 
 // crear una nota
-notesRouter.post('/', async (request, response, next) => {
+notesRouter.post('/', userExtractor, async (request, response, next) => {
   const { content, important = false } = request.body
 
-  const authorization = request.get('authorization')
-  let token = ''
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    token = authorization.substring(7)
-  }
-
-  let decodedToken = {}
-
-  try {
-    decodedToken = jwt.verify(token, process.env.SECRET_JWT_KEY)
-  } catch (e) {
-    console.log(e)
-  }
-
-  if (!token || !decodedToken.id) {
-    return response.status(401).json({ error: 'token missing or invalid' })
-  }
-
-  const { id: userId } = decodedToken
+  // obtenemos el usuario autenticado
+  const { userId } = request
 
   const user = await User.findById(userId)
 
@@ -73,7 +56,7 @@ notesRouter.post('/', async (request, response, next) => {
 })
 
 // actualizar una nota
-notesRouter.put('/:id', async (request, response, next) => {
+notesRouter.put('/:id', userExtractor, async (request, response, next) => {
   const { id } = request.params
   const note = request.body
 
@@ -90,7 +73,7 @@ notesRouter.put('/:id', async (request, response, next) => {
 })
 
 // eliminar una nota
-notesRouter.delete('/:id', async (request, response, next) => {
+notesRouter.delete('/:id', userExtractor, async (request, response, next) => {
   const { id } = request.params
   Note.findByIdAndDelete(id)
     .then(() => {
